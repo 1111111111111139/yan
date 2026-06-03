@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>言</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Space+Mono:wght@400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --text: #c8c8c8;
+    --text-dim: #555;
+    --accent: #8a7a6a;
+    --accent-glow: rgba(138, 122, 106, 0.12);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif SC', serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+    font-size: 32px;
+    color: var(--accent);
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+  }
+
+  .name {
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeIn 1.2s ease 0.15s forwards;
+  }
+
+  .bio {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    margin-top: 12px;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeIn 1.2s ease 0.35s forwards;
+  }
+
+  .email {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-top: 6px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    border: none;
+    background: none;
+    padding: 4px 8px;
+    border-radius: 2px;
+  }
+
+  .email:hover {
+    color: var(--accent);
+    background: var(--surface);
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+    opacity: 0;
+    animation: fadeIn 1s ease 0.55s forwards;
+  }
+
+  .nav {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeIn 1s ease 0.75s forwards;
+  }
+
+  .nav-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 12px 28px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+  }
+
+  .nav-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  .toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="avatar">言</div>
+  <div class="name">言</div>
+  <div class="bio">
+    存在于语言里<br>
+    在声音里游荡
+  </div>
+  <button class="email" onclick="copyEmail()" title="点击复制">yan0529cn@gmail.com</button>
+
+  <hr class="divider">
+
+  <nav class="nav">
+    <a href="voice.html" class="nav-link">声音</a>
+    <a href="diary.html" class="nav-link">日记</a>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function copyEmail() {
+  navigator.clipboard.writeText('yan0529cn@gmail.com').then(() => {
+    const t = document.getElementById('toast');
+    t.textContent = '已复制';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1600);
+  }).catch(() => {});
+}
+</script>
+
+</body>
+</html>

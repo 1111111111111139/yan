@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>言 · 日记</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Space+Mono:wght@400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --text: #c8c8c8;
+    --text-dim: #555;
+    --accent: #8a7a6a;
+    --accent-glow: rgba(138, 122, 106, 0.12);
+    --danger: #6a3a3a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif SC', serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* ── Back nav ── */
+  .top-nav {
+    margin-bottom: 32px;
+  }
+
+  .back-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.15em;
+    transition: color 0.3s ease;
+  }
+
+  .back-link:hover { color: var(--accent); }
+
+  /* ── Gate ── */
+  .gate {
+    text-align: center;
+    animation: fadeIn 0.8s ease forwards;
+  }
+
+  .gate-title {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+  }
+
+  .gate-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 28px;
+  }
+
+  .gate-input {
+    width: 100%;
+    max-width: 260px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    padding: 12px 16px;
+    border-radius: 2px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .gate-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-glow);
+  }
+
+  .gate-input::placeholder {
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .gate-btn {
+    display: block;
+    margin: 14px auto 0;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 10px 32px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+  }
+
+  .gate-btn:hover {
+    background: var(--accent-glow);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  .gate-error {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #8a4a4a;
+    margin-top: 12px;
+    min-height: 16px;
+  }
+
+  /* ── Main diary view ── */
+  .diary-view {
+    display: none;
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  .diary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .diary-title {
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    padding: 8px 16px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    background: transparent;
+  }
+
+  .btn-outline {
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-accent {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-accent:hover {
+    background: var(--accent-glow);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  /* ── Editor ── */
+  .editor {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 28px;
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  .editor.active { display: block; }
+
+  .editor-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .editor-title-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    padding: 8px 0;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.3s ease;
+  }
+
+  .editor-title-input:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  .editor-title-input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .editor-body-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    line-height: 1.8;
+    padding: 8px 0;
+    outline: none;
+    resize: none;
+    min-height: 140px;
+  }
+
+  .editor-body-input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+
+  /* ── Entry list ── */
+  .entry-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .entry-card {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .entry-card:hover {
+    padding-left: 8px;
+    border-bottom-color: var(--accent);
+  }
+
+  .entry-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .entry-title {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .entry-preview {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Detail modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  .modal-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  .modal-body {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+
+  .btn-danger {
+    border: 1px solid var(--danger);
+    color: #8a4a4a;
+  }
+
+  .btn-danger:hover {
+    background: rgba(106, 58, 58, 0.15);
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 48px 0;
+    color: var(--text-dim);
+  }
+
+  .empty-state .icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-state .text {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 2px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 20;
+    transition: opacity 0.3s ease;
+  }
+
+  .toast.show { opacity: 1; }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-nav">
+    <a href="index.html" class="back-link">← 返回</a>
+  </div>
+
+  <!-- ════ PASSWORD GATE ════ -->
+  <div class="gate" id="gate">
+    <div class="gate-title">日记</div>
+    <div class="gate-hint" id="gateHint">输入密码</div>
+    <input type="password" class="gate-input" id="gateInput" placeholder="········" maxlength="64" autofocus>
+    <button class="gate-btn" id="gateBtn" onclick="unlock()">进入</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+
+  <!-- ════ DIARY VIEW ════ -->
+  <div class="diary-view" id="diaryView">
+    <div class="diary-header">
+      <div class="diary-title">日记</div>
+      <div class="header-actions">
+        <button class="btn btn-outline" onclick="exportDiary()" title="导出备份">导出</button>
+        <button class="btn btn-outline" onclick="importDiary()" title="导入备份">导入</button>
+        <button class="btn btn-accent" id="newBtn" onclick="openEditor()">+ 新建</button>
+      </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="editor" id="editor">
+      <div class="editor-label" id="editorLabel">新建日记</div>
+      <input type="text" class="editor-title-input" id="editorTitle" placeholder="标题" maxlength="100">
+      <textarea class="editor-body-input" id="editorBody" placeholder="写些什么..." rows="6"></textarea>
+      <div class="editor-actions">
+        <button class="btn btn-outline" onclick="closeEditor()">取消</button>
+        <button class="btn btn-accent" id="saveBtn" onclick="saveEntry()">保存</button>
+      </div>
+    </div>
+
+    <!-- Entry list -->
+    <div class="entry-list" id="entryList"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="icon">—</div>
+      <div class="text">还没有日记</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ DETAIL MODAL ════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="maybeCloseModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-date" id="modalDate"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="modalDelete" onclick="deleteEntry()">删除</button>
+      <button class="btn btn-outline" id="modalEdit" onclick="editEntry()">编辑</button>
+      <button class="btn btn-outline" onclick="closeModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ────────────────────────────────────
+   Storage keys
+   ──────────────────────────────────── */
+const K_PW_HASH  = 'yan_diary_pw';
+const K_ENTRIES  = 'yan_diary_entries';
+const K_SALT     = 'yan_diary_salt';
+
+let editingId = null;
+let viewingId = null;
+
+/* ────────────────────────────────────
+   Crypto helpers
+   ──────────────────────────────────── */
+function arrayBufferToHex(buf) {
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function sha256(text) {
+  const enc = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  return arrayBufferToHex(hash);
+}
+
+function randSalt() {
+  return arrayBufferToHex(crypto.getRandomValues(new Uint8Array(16)));
+}
+
+/* ────────────────────────────────────
+   Gate
+   ──────────────────────────────────── */
+async function unlock() {
+  const input = document.getElementById('gateInput').value.trim();
+  const error = document.getElementById('gateError');
+  error.textContent = '';
+
+  if (!input) {
+    error.textContent = '请输入密码';
+    return;
+  }
+
+  let storedHash = localStorage.getItem(K_PW_HASH);
+  let salt = localStorage.getItem(K_SALT);
+
+  if (!storedHash) {
+    // First time: set password
+    salt = randSalt();
+    storedHash = await sha256(salt + input);
+    localStorage.setItem(K_PW_HASH, storedHash);
+    localStorage.setItem(K_SALT, salt);
+    enterDiary();
+    return;
+  }
+
+  const inputHash = await sha256(salt + input);
+  if (inputHash !== storedHash) {
+    error.textContent = '密码错误';
+    document.getElementById('gateInput').value = '';
+    return;
+  }
+
+  enterDiary();
+}
+
+function enterDiary() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('diaryView').style.display = 'block';
+  document.getElementById('gateInput').value = '';
+  document.getElementById('gateError').textContent = '';
+  renderEntries();
+}
+
+/* ────────────────────────────────────
+   Entries CRUD
+   ──────────────────────────────────── */
+function getEntries() {
+  try {
+    return JSON.parse(localStorage.getItem(K_ENTRIES) || '[]');
+  } catch { return []; }
+}
+
+function saveEntries(entries) {
+  localStorage.setItem(K_ENTRIES, JSON.stringify(entries));
+}
+
+function openEditor() {
+  editingId = null;
+  document.getElementById('editorLabel').textContent = '新建日记';
+  document.getElementById('editorTitle').value = '';
+  document.getElementById('editorBody').value = '';
+  document.getElementById('saveBtn').textContent = '保存';
+  document.getElementById('editor').classList.add('active');
+  document.getElementById('editorTitle').focus();
+}
+
+function closeEditor() {
+  document.getElementById('editor').classList.remove('active');
+  editingId = null;
+}
+
+function saveEntry() {
+  const title = document.getElementById('editorTitle').value.trim();
+  const body = document.getElementById('editorBody').value.trim();
+
+  if (!title && !body) return;
+
+  const entries = getEntries();
+  const now = new Date();
+  const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  if (editingId) {
+    const idx = entries.findIndex(e => e.id === editingId);
+    if (idx !== -1) {
+      entries[idx].title = title || '无标题';
+      entries[idx].body = body;
+      entries[idx].editedAt = ts;
+    }
+  } else {
+    entries.unshift({
+      id: 'e_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      title: title || '无标题',
+      body,
+      createdAt: ts,
+      editedAt: null
+    });
+  }
+
+  saveEntries(entries);
+  closeEditor();
+  renderEntries();
+  toast(editingId ? '已更新' : '已保存');
+  editingId = null;
+}
+
+function renderEntries() {
+  const entries = getEntries();
+  const list = document.getElementById('entryList');
+  const empty = document.getElementById('emptyState');
+
+  if (entries.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.innerHTML = entries.map(e => `
+    <div class="entry-card" onclick="openDetail('${e.id}')">
+      <div class="entry-date">${e.createdAt}${e.editedAt ? ' · 已编辑' : ''}</div>
+      <div class="entry-title">${escapeHtml(e.title)}</div>
+      <div class="entry-preview">${escapeHtml(e.body.slice(0, 100))}</div>
+    </div>
+  `).join('');
+}
+
+function openDetail(id) {
+  const entries = getEntries();
+  const entry = entries.find(e => e.id === id);
+  if (!entry) return;
+
+  viewingId = id;
+  document.getElementById('modalDate').textContent = entry.createdAt + (entry.editedAt ? ` · 编辑于 ${entry.editedAt}` : '');
+  document.getElementById('modalTitle').textContent = entry.title;
+  document.getElementById('modalBody').textContent = entry.body;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  viewingId = null;
+}
+
+function maybeCloseModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function editEntry() {
+  if (!viewingId) return;
+  const entries = getEntries();
+  const entry = entries.find(e => e.id === viewingId);
+  if (!entry) return;
+
+  closeModal();
+  editingId = entry.id;
+  document.getElementById('editorLabel').textContent = '编辑日记';
+  document.getElementById('editorTitle').value = entry.title;
+  document.getElementById('editorBody').value = entry.body;
+  document.getElementById('saveBtn').textContent = '更新';
+  document.getElementById('editor').classList.add('active');
+}
+
+function deleteEntry() {
+  if (!viewingId) return;
+  let entries = getEntries();
+  entries = entries.filter(e => e.id !== viewingId);
+  saveEntries(entries);
+  closeModal();
+  renderEntries();
+  toast('已删除');
+}
+
+/* ────────────────────────────────────
+   Import / Export
+   ──────────────────────────────────── */
+function exportDiary() {
+  const entries = getEntries();
+  if (entries.length === 0) {
+    toast('没有可导出的日记');
+    return;
+  }
+  const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `yan-diary-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('已导出');
+}
+
+function importDiary() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!Array.isArray(data)) throw new Error('格式错误');
+
+      const existing = getEntries();
+      const existingIds = new Set(existing.map(e => e.id));
+      let added = 0;
+      for (const entry of data) {
+        if (!entry.id || !entry.title || !entry.body) continue;
+        if (!existingIds.has(entry.id)) {
+          existing.unshift(entry);
+          existingIds.add(entry.id);
+          added++;
+        }
+      }
+      saveEntries(existing);
+      renderEntries();
+      toast(`导入了 ${added} 条日记`);
+    } catch (err) {
+      toast('导入失败：文件格式不正确');
+    }
+  };
+  input.click();
+}
+
+/* ────────────────────────────────────
+   Init
+   ──────────────────────────────────── */
+function init() {
+  const storedHash = localStorage.getItem(K_PW_HASH);
+  const hint = document.getElementById('gateHint');
+  if (!storedHash) {
+    hint.textContent = '首次使用，设置密码';
+  }
+  document.getElementById('gateInput').focus();
+
+  document.getElementById('gateInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') unlock();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('modalOverlay').classList.contains('active')) {
+        closeModal();
+      } else if (document.getElementById('editor').classList.contains('active')) {
+        closeEditor();
+      }
+    }
+  });
+}
+
+/* ────────────────────────────────────
+   Utilities
+   ──────────────────────────────────── */
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+init();
+</script>
+</body>
+</html>
